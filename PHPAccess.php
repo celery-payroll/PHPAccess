@@ -77,14 +77,14 @@ class PHPAccess {
 		$row = "";
 		$total = count($csvRows);
 		for ($count = $i; $count < $total; $count++) {
-        		$row .= $csvRows[$count];
+        	$row .= $csvRows[$count];
 
-        		if (substr_count($row, '"') % 2 == 0) {
-                		break;
-            		}
-	    	}
+        	if (substr_count($row, '"') % 2 == 0) {
+               	break;
+           	}
+	    }
 
-	    	return array($row, $count + 1);
+	    return array($row, $count);
 	}
 	
 	/**
