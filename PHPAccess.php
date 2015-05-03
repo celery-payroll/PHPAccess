@@ -72,6 +72,15 @@ class PHPAccess {
 		return $this->_execute('mdb-export', $args);
 	}
 	
+	protected function _queryCSVArray($sqlQuery, $includeHeaders = true) {
+		$args = '';
+		if(!$includeHeaders) {
+			$args .= '-H ';
+		}
+		$args .= '-p -F -d "," ' . $this->_escapedMdbFile;
+		return $this->_execute('mdb-sql', $args, 'echo "' . $sqlQuery . '" | ');
+	}
+	
 	/**
 	 * Get table contents as SQL insert queries
 	 * 
@@ -88,10 +97,15 @@ class PHPAccess {
 	 * Get contents of a table as an assosiated array
 	 * 
 	 * @param $table Table to be exported
+	 * @param $sqlQuery Optional SQL query to use on the table
 	 * @returns array Table contents
 	 */
-	public function getData($table) {
-		$reader = \League\Csv\Reader::createFromString(implode("\n",$this->_getCSVArray($table, true)));
+	public function getData($table, $sqlQuery = null) {
+		$csvArray = (is_null($sqlQuery)) 
+			? $this->_getCSVArray($table, true) 
+			: $this->_queryCSVArray($sqlQuery, true);
+
+		$reader = \League\Csv\Reader::createFromString(implode("\n", $csvArray));
 		$columns = $this->getColumns($table);
 		$reader->setOffset(1);
 		return $reader->fetchAssoc($columns);
@@ -131,13 +145,14 @@ class PHPAccess {
 	 * 
 	 * @param $app Name of the application
 	 * @param $paramString Attributes for the application
+	 * @param $prefix prefix parsed before the application call
 	 * @returns array Response lines
 	 */
-	protected function _execute($app, $paramString = null) {
+	protected function _execute($app, $paramString = null, $prefix = null) {
 		if($this->mdbToolsPath) {
 			$app = escapeshellarg($this->mdbToolsPath) . '/' . $app;
 		}
-		exec($app . ' ' . $paramString, $outputArray, $exitValue);
+		exec($prefix . $app . ' ' . $paramString, $outputArray, $exitValue);
 		if($exitValue != 0) {
 			throw new \Exception("Could not execute command");
 		}

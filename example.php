@@ -17,6 +17,10 @@ foreach($tables as $table) {
 	print_r($access->getData($table));
 }
 
+//Display contents of the tables using a SQL query
+echo "Table 'test' data using a query:\n";
+print_r($access->getData($table, "SELECT * FROM test WHERE description = 'test123'"));
+
 //Export table structures as SQL queries
 echo "SQL-dump:\n";
 echo $access->getDatabaseSql('mysql');
