@@ -105,10 +105,24 @@ class PHPAccess {
 			? $this->_getCSVArray($table, true) 
 			: $this->_queryCSVArray($sqlQuery, true);
 
+		$intOffset = (is_null($sqlQuery)) ? 1 : 2;
+
 		$reader = \League\Csv\Reader::createFromString(implode("\n", $csvArray));
 		$columns = $this->getColumns($table);
-		$reader->setOffset(1);
-		return $reader->fetchAssoc($columns);
+		$reader->setOffset($intOffset);
+		$arrReturn = $reader->fetchAssoc($columns);
+
+		//*** Fix empty last row from CSV Reader.
+		if (count($arrReturn) > 0) {
+		    $arrRow = $arrReturn[count($arrReturn) - 1];
+		    if (count($arrRow) > 1) {
+		        if (is_null($arrRow[0]) && is_null($arrRow[count($arrRow) - 1])) {
+		            $arrDump = array_pop($arrReturn);
+		        }
+		    }
+		}
+
+		return $arrReturn;
 	}
 	
 	/**
