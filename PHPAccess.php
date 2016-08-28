@@ -116,9 +116,12 @@ class PHPAccess {
 		if (count($arrReturn) > 0) {
 		    $arrRow = $arrReturn[count($arrReturn) - 1];
 		    if (count($arrRow) > 1) {
-		        if (is_null($arrRow[0]) && is_null($arrRow[count($arrRow) - 1])) {
-		            $arrDump = array_pop($arrReturn);
-		        }
+                $firstValue = reset($arrRow);
+                $lastValue = end($arrRow);
+
+                if (is_null($firstValue) && is_null($lastValue)) {
+                    $arrDump = array_pop($arrReturn);
+                }
 		    }
 		}
 
